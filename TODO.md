@@ -7,6 +7,7 @@ Core:
 - Network.
 - Write tests for:
     - BN
+    - Bases
     - SECP256K1Wrapper
     - SHA512
 
@@ -28,13 +29,13 @@ Bug fixes and behavior changes:
 
 Documentation:
 - Add comments to:
-    - lib/Base58.nim
-    - lib/Hex.nim
+    - lib/Bases.nim
+    - lib/Bases/
 
     - Merit/State.nim
 
-    - Wallet/PublicKey
-    - Wallet/Wallet
+    - Wallet/PublicKey.bim
+    - Wallet/Wallet.nim
 
     - Lattice/
     - UI/

@@ -93,7 +93,7 @@ proc mpz_tPow(x: ptr mpz_t, y: ptr mpz_t, z: ptr mpz_t) {.header: "../../src/lib
 proc `^`*(x: BN, y: BN): BN {.raises: [].} =
     result = newBN()
     mpz_tPow(addr x.number, addr y.number, addr result.number)
-proc `pow`*(x: BN, y: BN): BN {.raises: [].} =
+proc pow*(x: BN, y: BN): BN {.raises: [].} =
     result = x ^ y
 
 #Division functions.

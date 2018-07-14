@@ -1,6 +1,5 @@
 #Number libs.
-import ../lib/BN
-import ../lib/Hex
+import ../lib/Bases
 
 #Time lib.
 import ../lib/time
@@ -15,22 +14,22 @@ import lists
 #Blockchain object.
 type Blockchain* = ref object of RootObj
     #Genesis string or network ID.
-    genesis: string
+    genesis: Hexadecimal
     #Blockchain height. BN for compatibility.
-    height: BN
+    height: Decimal
     #Doubly Linked List of all the blocks, and another of all the difficulties.
     blocks: DoublyLinkedList[Block]
     difficulties: DoublyLinkedList[Difficulty]
 
 #Create a new Blockchain.
-proc newBlockchain*(genesis: string): Blockchain {.raises: [ValueError, OverflowError, AssertionError, Exception].} =
+proc newBlockchain*(genesis: Hexadecimal): Blockchain {.raises: [ValueError, OverflowError, AssertionError].} =
     #Set the current time as the time of creation.
-    let creation: BN = getTime()
+    let creation: Decimal = getTime()
 
     #Init the object.
     result = Blockchain(
         genesis: genesis,
-        height: newBN("0"),
+        height: newBN(0),
         blocks: initDoublyLinkedList[Block](),
         difficulties: initDoublyLinkedList[Difficulty]()
     )
@@ -39,10 +38,12 @@ proc newBlockchain*(genesis: string): Blockchain {.raises: [ValueError, Overflow
     result.difficulties.append(Difficulty(
         start: creation,
         endTime: creation + newBN("60"),
-        difficulty: Hex.revert("3333333333333333333333333333333333333333333333333333333333333333")
+        difficulty: Hexadecimal(
+            value: "3333333333333333333333333333333333333333333333333333333333333333"
+        )
     ))
     #Append the genesis block. ID 0, creation time, mined to a 0'd public key, with a proof that doesn't matter of "0".
-    result.blocks.append(newBlock(newBN("0"), creation, "Emb111111111111111111111111111111111111111111111111111111111111", "0"))
+    result.blocks.append(newBlock(newBN(0), creation, "Emb111111111111111111111111111111111111111111111111111111111111", newHexadecimal("0")))
 
 #Tests a block for validity.
 proc testBlock*(blockchain: Blockchain, newBlock: Block): bool {.raises: [OverflowError, AssertionError, Exception].} =
@@ -65,7 +66,7 @@ proc testBlock*(blockchain: Blockchain, newBlock: Block): bool {.raises: [Overfl
         return
 
     #If the block is invalid...
-    if not verifyBlock(newBlock):
+    if not newBlock.verifyBlock():
         result = false
         return
 
@@ -91,10 +92,10 @@ proc addBlock*(blockchain: Blockchain, newBlock: Block): bool {.raises: [Overflo
     result = true
 
 #Getters for the genesis string, height, blocks, and difficulties (along with iterators).
-proc getGenesis*(blockchain: Blockchain): string {.raises: [].} =
+proc getGenesis*(blockchain: Blockchain): Hexadecimal {.raises: [].} =
     result = blockchain.genesis
 
-proc getHeight*(blockchain: Blockchain): BN {.raises: [].} =
+proc getHeight*(blockchain: Blockchain): Decimal {.raises: [].} =
     result = blockchain.height
 
 proc getBlocks*(blockchain: Blockchain): DoublyLinkedList[Block] {.raises: [].} =

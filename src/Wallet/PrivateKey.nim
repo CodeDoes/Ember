@@ -4,6 +4,9 @@ import ../lib/RNG
 #SECP256K1 lib.
 import ../lib/SECP256K1Wrapper
 
+#Number lib.
+import ../lib/Bases
+
 #SHA512 lib.
 import ../lib/SHA512 as SHA512File
 
@@ -48,4 +51,10 @@ proc `$`*(key: PrivateKey): string {.raises: [].} =
 
 #Sign a message via its HA512^2 hash.
 proc sign*(key: PrivateKey, msg: string): string {.raises: [ValueError, Exception].} =
-    result = key.secpSign((SHA512^2)(msg))
+    result = key.secpSign(
+        $(
+            (SHA512^2)(
+                newHexadecimal(msg)
+            )
+        )
+    )

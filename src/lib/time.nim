@@ -1,9 +1,12 @@
-#Wrapper around the Nim time library that returns a BN.
+#Wrapper around the Nim time library that returns a Decimal.
 
-import BN
+#Import number libs.
+import Bases
 
+#Standard libs for time/string manipulation.
 import times, strutils
 
-#Get time function. Just turns the epoch into a string and makes a BN off it.
-proc getTime*(): BN {.raises: [AssertionError].} =
+#Function that returns the time.
+proc getTime*(): Decimal {.raises: [AssertionError].} =
+    #Get the time, split off any decimal, and convert to a Decimal.
     result = newBN(($(epochTime())).split(".")[0])

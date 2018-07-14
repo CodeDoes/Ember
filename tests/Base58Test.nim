@@ -1,5 +1,4 @@
-import ../src/lib/BN
-import ../src/lib/Base58
+import ../src/lib/Bases
 
 var Base58Characters: array[58, char] = [
     '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -12,45 +11,47 @@ var Base58Characters: array[58, char] = [
 ]
 
 type PairObj = object
-    value: string
+    value: Base58
     target: string
-proc Pair(value: string, target: string): PairObj =
+proc Pair(value: Base58, target: string): PairObj =
     result = PairObj(
         value: value,
         target: target
     )
 
-var temp: string
+var
+    tempBase58: Base58
+    tempDecimal: Decimal
 proc test(pair: PairObj): string =
     result = ""
 
-    temp = Base58.convert(newBN(pair.value))
-    if (pair.target != nil) and (pair.target != temp):
-        result = "Conerted to " & temp & "."
+    tempBase58 = pair.value
+    if pair.target != $tempBase58:
+        result = "Conerted to " & $tempBase58 & "."
         return
 
-    temp = $Base58.revert(temp)
-    if pair.value != temp:
-        result = "Reverted to " & temp & "."
+    tempDecimal = tempBase58
+    if pair.value != tempDecimal:
+        result = "Reverted to " & $tempDecimal & "."
         return
 
 proc suite*(): string =
     var pairs: seq[PairObj] = @[
-        Pair("58", "21"),
-        Pair("59", "22"),
-        Pair("131", "3G")
+        Pair(newBN(58), "21"),
+        Pair(newBN(59), "22"),
+        Pair(newBN(131), "3G")
     ]
 
     for i in 0 ..< Base58Characters.len:
         pairs.add(
-            Pair($i, $Base58Characters[i])
+            Pair(newBN(i), $Base58Characters[i])
         )
 
     for pair in pairs:
         result = test(pair)
         if result != "":
             result =
-                "Base 58 Test with a value of: " & pair.value &
+                "Base 58 Test with a value of: " & $pair.value &
                 " and target of: " & pair.target &
                 " failed. Error: " & result
             return

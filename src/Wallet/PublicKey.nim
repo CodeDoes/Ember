@@ -1,3 +1,4 @@
+import ../lib/Bases
 import ../lib/SHA512 as SHA512File
 import ../lib/SECP256K1Wrapper
 
@@ -17,4 +18,10 @@ proc `$`*(key: PublicKey): string {.raises: [ValueError].} =
     result = $!(key)
 
 proc verify*(key: PublicKey, msg: string, sig: string): bool {.raises: [ValueError, Exception].} =
-    key.secpVerify((SHA512^2)(msg), sig)
+    key.secpVerify(
+        ($
+            (SHA512^2)(
+                newHexadecimal(msg)
+            )
+        ), sig
+    )

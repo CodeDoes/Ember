@@ -1,6 +1,5 @@
-#Number libs.
-import ../lib/Hex
-import ../lib/BN
+#Number lib.
+import ../lib/Bases
 
 #Block lib.
 import Block as BlockFile
@@ -14,11 +13,11 @@ import os
 #Difficulty object.
 type Difficulty* = ref object of RootObj
     #Start of the period.
-    start*: BN
+    start*: Decimal
     #End of the period.
-    endTime*: BN
+    endTime*: Decimal
     #Difficulty to beat.
-    difficulty*: BN
+    difficulty*: Hexadecimal
 
 #Verifies a difficulty against a block.
 proc verifyDifficulty*(diff: Difficulty, newBlock: Block): bool {.raises: [ValueError].} =
@@ -30,7 +29,7 @@ proc verifyDifficulty*(diff: Difficulty, newBlock: Block): bool {.raises: [Value
         return
 
     #If the Lyra hash didn't beat the difficulty...
-    if Hex.revert(newBlock.getLyra()) < diff.difficulty:
+    if newBlock.getLyra() < diff.difficulty:
         result = false
         return
 
@@ -40,14 +39,14 @@ proc calculateNextDifficulty*(
     difficulties: DoublyLinkedList[Difficulty],
     periodInSeconds: int,
     blocksPerPeriod: int
-): Difficulty {.raises: [AssertionError].} =
+): Difficulty {.raises: [ValueError, AssertionError, OverflowError].} =
     var
         #Last difficulty.
         last: Difficulty = difficulties.tail.value
         #Blocks in the last period.
         blockCount: int = 0
         rate: float64
-        difficulty: BN
+        difficulty: Hexadecimal
 
     #Iterate through every block.
     for b in items(blocks):
@@ -66,7 +65,7 @@ proc calculateNextDifficulty*(
         #Use the same difficulty.
         result = Difficulty(
             start: last.endTime,
-            endTime: last.endTime + newBN($periodInSeconds),
+            endTime: last.endTime + newBN(periodInSeconds),
             difficulty: last.difficulty
         )
         return
@@ -81,7 +80,7 @@ proc calculateNextDifficulty*(
         rate = 10
 
     #Get a BN out of the rate.
-    var bnRate: BN = newBN(($rate).split(".")[0])
+    var bnRate: Decimal = newBN(($rate).split(".")[0])
     #If the count was lower than the target...
     if blockCount < blocksPerPeriod:
         #The difficulty is the last one divided by the rate.

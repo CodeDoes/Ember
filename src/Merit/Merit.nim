@@ -1,5 +1,5 @@
 #Number lib.
-import ../lib/BN
+import ../lib/Bases
 
 #Block/Blockchain/State libs.
 import Block as BlockFile
@@ -17,7 +17,7 @@ type Merit* = ref object of RootObj
     state: State
 
 #Creates A Merit object based on a Gensis string.
-proc newMerit*(genesis: string): Merit {.raises: [ValueError, OverflowError, AssertionError, Exception].} =
+proc newMerit*(genesis: Hexadecimal): Merit {.raises: [ValueError, OverflowError, AssertionError].} =
     result = Merit(
         blockchain: newBlockchain(genesis),
         state: newState()
@@ -48,10 +48,10 @@ proc processBlock*(merit: Merit, newBlock: Block): bool {.raises: [OverflowError
 #The blockchain height.
 #Blocks (and an iterator for them).
 #An address's balance.
-proc getGenesis*(merit: Merit): string {.raises: [].} =
+proc getGenesis*(merit: Merit): Hexadecimal {.raises: [].} =
     result = merit.blockchain.getGenesis()
 
-proc getHeight*(merit: Merit): BN {.raises: [].} =
+proc getHeight*(merit: Merit): Decimal {.raises: [].} =
     result = merit.blockchain.getHeight()
 
 proc getBlocks*(merit: Merit): DoublyLinkedList[Block] {.raises: [].} =
@@ -62,5 +62,5 @@ iterator getBlocks*(merit: Merit): Block {.raises: [].} =
     for i in blocks.items():
         yield i
 
-proc getBalance*(merit: Merit, account: string): BN {.raises: [KeyError].} =
+proc getBalance*(merit: Merit, account: string): Decimal {.raises: [KeyError].} =
     result = merit.state.getBalance(account)
